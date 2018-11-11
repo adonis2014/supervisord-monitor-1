@@ -14,6 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,17 +32,17 @@ public class ApiConfiguration {
     Environment environment;
 
     @Bean
-    public SupervisorApiMap supervisorApiMap(ApplicationArguments arguments) {
+    public SupervisorApiMap supervisorApiMap(ApplicationArguments arguments) throws Exception{
         SupervisorApiMap map = new SupervisorApiMap();
         String filename = environment.getProperty("config");
-        FileReader fileReader = null;
+        File fileReader = null;
         try {
-            fileReader = new FileReader(filename);
+            fileReader = ResourceUtils.getFile(filename);
         } catch (FileNotFoundException e) {
             System.out.println(e.getLocalizedMessage());
             System.exit(1);
         }
-        JsonReader jsonReader = new JsonReader(fileReader);
+        JsonReader jsonReader = new JsonReader(new FileReader(fileReader));
         List<NodeConfiguration> configurations = gson.fromJson(
             jsonReader,
             new TypeToken<List<NodeConfiguration>>(){}.getType()
